@@ -13,12 +13,25 @@ const generateToken = (id, role) => {
 // @route   POST /api/auth/signup
 export const signup = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, rollNo } = req.body;
+
+    // Roll number is required for students
+    if (role === 'student' && !rollNo) {
+      return res.status(400).json({ message: 'Roll number is required for students' });
+    }
 
     // Check if user exists
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
+    }
+
+    // Check if roll number is already taken (students only)
+    if (role === 'student' && rollNo) {
+      const rollExists = await User.findOne({ rollNo });
+      if (rollExists) {
+        return res.status(400).json({ message: 'Roll number already registered' });
+      }
     }
 
     // Hash password
@@ -31,6 +44,7 @@ export const signup = async (req, res) => {
       email,
       password: hashedPassword,
       role,
+      ...(role === 'student' && rollNo ? { rollNo } : {}),
     });
 
     if (user) {
@@ -40,6 +54,7 @@ export const signup = async (req, res) => {
           name: user.name,
           email: user.email,
           role: user.role,
+          rollNo: user.rollNo || null,
         },
         token: generateToken(user._id, user.role)
       });
@@ -65,6 +80,7 @@ export const login = async (req, res) => {
           name: user.name,
           email: user.email,
           role: user.role,
+          rollNo: user.rollNo || null,
         },
         token: generateToken(user._id, user.role),
       });

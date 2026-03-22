@@ -34,11 +34,14 @@ const App = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      if (isAuthenticated) {
+      if (isAuthenticated && user) {
         try {
-          const fetchedStudents = await fetchStudents();
+          // Only teachers are authorized to fetch the full student list
+          if (user.role === 'teacher') {
+            const fetchedStudents = await fetchStudents();
+            setStudents(fetchedStudents);
+          }
           const fetchedGrades = await fetchGrades();
-          setStudents(fetchedStudents);
           setGrades(fetchedGrades);
         } catch (error) {
           console.error("Error loading data:", error);
@@ -46,7 +49,9 @@ const App = () => {
       }
     };
     loadData();
-  }, [isAuthenticated]);
+  // Use primitive values as deps to avoid object reference instability
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, user?._id, user?.role]);
 
   const handleLoginSuccess = (userData) => {
     setUser(userData);

@@ -8,7 +8,8 @@ const StudentsPage = ({ user, students, onDelete, allGrades = [] }) => {
 
   const filteredStudents = students.filter(s => 
     s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    s.email.toLowerCase().includes(searchTerm.toLowerCase())
+    s.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (s.rollNo && s.rollNo.toLowerCase().includes(searchTerm.toLowerCase()))
   ).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
 
   const toggleExpand = (sid) => {
@@ -47,9 +48,10 @@ const StudentsPage = ({ user, students, onDelete, allGrades = [] }) => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-100">
-                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">Academic Curator Student Identity</th>
-                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">Institutional Email</th>
-                {isTeacher && <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 text-right">Operational Actions</th>}
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">Student</th>
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">Roll No.</th>
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">Email</th>
+                {isTeacher && <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 text-right">Actions</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -74,11 +76,16 @@ const StudentsPage = ({ user, students, onDelete, allGrades = [] }) => {
                           </div>
                         </div>
                       </td>
+                      <td className="px-6 py-5">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-gray-100 text-gray-700 text-xs font-bold tracking-wide">
+                          {student.rollNo || '—'}
+                        </span>
+                      </td>
                       <td className="px-6 py-5 text-gray-500 text-sm font-medium">
                         {student.email}
                       </td>
                       {isTeacher && (
-                        <td className="px-6 py-5 text-right">
+                        <td className="px-6 py-5 text-right" colSpan={1}>
                           <div className="flex items-center justify-end space-x-4">
                             <button 
                               className={`p-2 rounded-lg transition-all ${isExpanded ? 'bg-primary-100 text-primary-600' : 'text-gray-300 hover:text-primary-600 hover:bg-primary-50'}`}
@@ -101,7 +108,7 @@ const StudentsPage = ({ user, students, onDelete, allGrades = [] }) => {
                     {/* Expandable Grades Drawer */}
                     {isExpanded && (
                       <tr className="bg-gray-50/50">
-                        <td colSpan={isTeacher ? 3 : 2} className="px-10 py-8">
+                        <td colSpan={isTeacher ? 4 : 3} className="px-10 py-8">
                            <div className="animate-slide-down">
                               <div className="flex items-center space-x-2 text-gray-400 mb-6 px-1">
                                  <Award className="h-4 w-4" />
@@ -136,7 +143,7 @@ const StudentsPage = ({ user, students, onDelete, allGrades = [] }) => {
                 );
               }) : (
                 <tr>
-                  <td colSpan={isTeacher ? 3 : 2} className="px-6 py-20 text-center text-gray-400 font-bold uppercase tracking-widest text-xs">
+                  <td colSpan={isTeacher ? 4 : 3} className="px-6 py-20 text-center text-gray-400 font-bold uppercase tracking-widest text-xs">
                     No matching identities discovered.
                   </td>
                 </tr>

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { GraduationCap, ArrowRight, User, Mail, Lock, ShieldCheck } from 'lucide-react';
+import { GraduationCap, ArrowRight, User, Mail, Lock, ShieldCheck, Hash } from 'lucide-react';
 import { signup } from '../services/api';
 
 const SignupPage = ({ onLogin }) => {
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'student' });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'student', rollNo: '' });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -131,6 +131,23 @@ const SignupPage = ({ onLogin }) => {
                   </button>
                 </div>
               </div>
+
+              {formData.role === 'student' && (
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Roll Number</label>
+                  <div className="relative group/input">
+                    <Hash className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-300 transition-colors" />
+                    <input 
+                      type="text" 
+                      placeholder="e.g. 2024CS001" 
+                      className="input-field pl-12 h-12 w-full bg-gray-50 border-gray-100 focus:bg-white transition-all shadow-sm"
+                      value={formData.rollNo}
+                      onChange={(e) => setFormData({...formData, rollNo: e.target.value})}
+                      required
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {error && (
