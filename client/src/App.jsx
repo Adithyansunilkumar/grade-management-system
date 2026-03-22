@@ -1,38 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Navbar from './components/Navbar';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import Dashboard from './pages/Dashboard';
 import StudentsPage from './pages/StudentsPage';
 import GradesPage from './pages/GradesPage';
-import './index.css';
-
+import GradebookPage from './pages/GradebookPage';
+import Layout from './components/Layout';
 import { 
   getStudents as fetchStudents, 
-  addStudent as apiAddStudent, 
-  deleteStudent as apiDeleteStudent,
   getGrades as fetchGrades,
+  addStudent as apiAddStudent,
+  deleteStudent as apiDeleteStudent,
   addGrade as apiAddGrade
 } from './services/api';
 
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return localStorage.getItem('token') !== null;
-  });
-
   const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null;
+    try {
+      const savedUser = localStorage.getItem('user');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch (err) {
+      console.error("Auth initialization error:", err);
+      return null;
+    }
   });
-
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    const token = localStorage.getItem('token');
+    return !!(token && token !== 'null' && token !== 'undefined');
+  });
   const [students, setStudents] = useState([]);
   const [grades, setGrades] = useState([]);
 
-  // Load data from API
   useEffect(() => {
-    if (isAuthenticated) {
-      const loadData = async () => {
+    const loadData = async () => {
+      if (isAuthenticated) {
         try {
           const fetchedStudents = await fetchStudents();
           const fetchedGrades = await fetchGrades();
@@ -41,28 +43,23 @@ const App = () => {
         } catch (error) {
           console.error("Error loading data:", error);
         }
-      };
-      loadData();
-    }
+      }
+    };
+    loadData();
   }, [isAuthenticated]);
 
-  const login = (userData) => {
-    setIsAuthenticated(true);
+  const handleLoginSuccess = (userData) => {
     setUser(userData);
-    localStorage.setItem('token', userData.token);
-    localStorage.setItem('user', JSON.stringify(userData));
+    setIsAuthenticated(true);
   };
 
-  const logout = () => {
-    setIsAuthenticated(false);
-    setUser(null);
+  const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    setStudents([]);
-    setGrades([]);
+    setUser(null);
+    setIsAuthenticated(false);
   };
 
-  // Student CRUD (Backend Sync)
   const addStudent = async (student) => {
     try {
       const newStudent = await apiAddStudent(student);
@@ -76,52 +73,72 @@ const App = () => {
     try {
       await apiDeleteStudent(id);
       setStudents(prev => prev.filter(s => s._id !== id));
-      setGrades(prev => prev.filter(g => g.studentId !== id));
     } catch (error) {
       console.error("Failed to delete student:", error);
     }
   };
 
-  // Grade CRUD (Backend Sync)
-  const addGrade = async (grade) => {
+  const addGrade = async (gradeData) => {
     try {
-      const newGrade = await apiAddGrade(grade);
+      const newGrade = await apiAddGrade(gradeData);
       setGrades(prev => [...prev, newGrade]);
     } catch (error) {
-      console.error("Failed to add grade:", error);
+      console.error("Failed to assign grade:", error);
     }
   };
 
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
-        {isAuthenticated && <Navbar user={user} onLogout={logout} />}
-        <main className="container mx-auto px-4 py-8">
-          <Routes>
-            <Route 
-              path="/" 
-              element={!isAuthenticated ? <LoginPage onLogin={login} /> : <Navigate to="/dashboard" />} 
-            />
-            <Route 
-              path="/signup" 
-              element={!isAuthenticated ? <SignupPage /> : <Navigate to="/dashboard" />} 
-            />
-            <Route 
-              path="/dashboard" 
-              element={isAuthenticated ? <Dashboard user={user} studentsCount={students.length} subjectsCount={new Set(grades.map(g => g.subject)).size} /> : <Navigate to="/" />} 
-            />
-            <Route 
-              path="/students" 
-              element={isAuthenticated ? <StudentsPage user={user} students={students} onAdd={addStudent} onDelete={deleteStudent} /> : <Navigate to="/" />} 
-            />
-            <Route 
-              path="/grades" 
-              element={isAuthenticated ? <GradesPage user={user} students={students} grades={grades} onAddGrade={addGrade} /> : <Navigate to="/" />} 
-            />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        </main>
-      </div>
+      <Routes>
+        {/* Auth Routes */}
+        <Route path="/" element={!isAuthenticated ? <LoginPage onLogin={handleLoginSuccess} /> : <Navigate to="/dashboard" />} />
+        <Route path="/signup" element={!isAuthenticated ? <SignupPage onLogin={handleLoginSuccess} /> : <Navigate to="/dashboard" />} />
+
+        {/* Protected App Routes with Layout */}
+        <Route 
+          path="/dashboard" 
+          element={
+            isAuthenticated ? (
+              <Layout user={user} onLogout={handleLogout}>
+                <Dashboard user={user} studentsCount={students.length} subjectsCount={6} />
+              </Layout>
+            ) : <Navigate to="/" />
+          } 
+        />
+        <Route 
+          path="/students" 
+          element={
+            isAuthenticated ? (
+              <Layout user={user} onLogout={handleLogout}>
+                <StudentsPage user={user} students={students} onDelete={deleteStudent} allGrades={grades} />
+              </Layout>
+            ) : <Navigate to="/" />
+          } 
+        />
+        <Route 
+          path="/grades" 
+          element={
+            isAuthenticated ? (
+              <Layout user={user} onLogout={handleLogout}>
+                <GradesPage user={user} students={students} grades={grades} onAddGrade={addGrade} />
+              </Layout>
+            ) : <Navigate to="/" />
+          } 
+        />
+         <Route 
+          path="/gradebook" 
+          element={
+            isAuthenticated && user?.role === 'teacher' ? (
+              <Layout user={user} onLogout={handleLogout}>
+                <GradebookPage students={students} allGrades={grades} />
+              </Layout>
+            ) : <Navigate to="/" />
+          } 
+        />
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
     </Router>
   );
 };

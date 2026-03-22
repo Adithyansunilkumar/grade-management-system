@@ -1,8 +1,19 @@
 const API_BASE_URL = 'http://localhost:5000/api';
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  const isValidToken = token && token !== 'null' && token !== 'undefined';
+  return {
+    'Content-Type': 'application/json',
+    ...(isValidToken ? { 'Authorization': `Bearer ${token}` } : {})
+  };
+};
+
 export const fetchData = async (endpoint) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/${endpoint}`);
+    const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
+      headers: getAuthHeaders()
+    });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -54,14 +65,6 @@ export const login = async (credentials) => {
 };
 
 // Students
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-  };
-};
-
 export const getStudents = () => fetchData('students');
 
 export const addStudent = async (studentData) => {

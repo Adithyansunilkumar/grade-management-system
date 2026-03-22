@@ -24,7 +24,7 @@ const StudentList = ({ students, onDelete, isAdmin }) => {
       </div>
       <div className="divide-y divide-gray-100">
         {students.map((student) => (
-          <div key={student._id} className="group p-6 flex flex-col md:flex-row items-center justify-between hover:bg-primary-50 transition-colors duration-200">
+          <div key={student._id} className="group p-6 flex flex-col md:flex-row items-start md:items-center justify-between hover:bg-primary-50 transition-colors duration-200">
             <div className="flex items-center space-x-6 w-full md:w-auto">
               <div className="flex-shrink-0 w-14 h-14 bg-primary-100 flex items-center justify-center rounded-2xl text-primary-600 shadow-sm border border-primary-200">
                 <User className="h-7 w-7" />

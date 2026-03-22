@@ -2,6 +2,13 @@ import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
+// Generate Token Utility
+const generateToken = (id, role) => {
+  return jwt.sign({ id, role }, process.env.JWT_SECRET, {
+    expiresIn: '30d',
+  });
+};
+
 // @desc    Register a new user
 // @route   POST /api/auth/signup
 export const signup = async (req, res) => {
@@ -28,13 +35,13 @@ export const signup = async (req, res) => {
 
     if (user) {
       res.status(201).json({
-        message: 'User created successfully',
-        data: {
+        user: {
           _id: user._id,
           name: user.name,
           email: user.email,
           role: user.role,
         },
+        token: generateToken(user._id, user.role)
       });
     } else {
       res.status(400).json({ message: 'Invalid user data' });
@@ -49,27 +56,17 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    // Find user by email
     const user = await User.findOne({ email });
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      // Generate Token
-      const token = jwt.sign(
-        { id: user._id, role: user.role },
-        process.env.JWT_SECRET,
-        { expiresIn: '30d' }
-      );
-
       res.status(200).json({
-        message: 'Login successful',
-        data: {
+        user: {
           _id: user._id,
           name: user.name,
           email: user.email,
           role: user.role,
-          token: token,
         },
+        token: generateToken(user._id, user.role),
       });
     } else {
       res.status(401).json({ message: 'Invalid email or password' });

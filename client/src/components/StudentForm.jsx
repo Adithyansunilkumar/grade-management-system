@@ -17,7 +17,7 @@ const StudentForm = ({ onAdd }) => {
         <UserPlus className="h-6 w-6 text-primary-600" />
         <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Add New Student</h2>
       </div>
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="space-y-2">
           <label className="text-sm font-semibold text-gray-700 ml-1">Full Name</label>
           <div className="relative">
@@ -25,7 +25,7 @@ const StudentForm = ({ onAdd }) => {
             <input
               type="text"
               placeholder="John Doe"
-              className="input pl-10 h-11"
+              className="input-field pl-10 h-11"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             />
@@ -38,7 +38,7 @@ const StudentForm = ({ onAdd }) => {
             <input
               type="text"
               placeholder="S101"
-              className="input pl-10 h-11"
+              className="input-field pl-10 h-11"
               value={formData.rollNumber}
               onChange={(e) => setFormData({ ...formData, rollNumber: e.target.value })}
             />
@@ -62,7 +62,7 @@ const StudentForm = ({ onAdd }) => {
           <div className="relative">
             <GraduationCap className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
             <select
-              className="input pl-10 h-11 appearance-none"
+              className="input-field pl-10 h-11 appearance-none"
               value={formData.class}
               onChange={(e) => setFormData({ ...formData, class: e.target.value })}
             >
@@ -73,8 +73,8 @@ const StudentForm = ({ onAdd }) => {
             </select>
           </div>
         </div>
-        <div className="md:col-span-4 flex justify-end">
-          <button type="submit" className="btn btn-primary flex items-center space-x-2 px-8 py-3">
+        <div className="md:col-span-2 lg:col-span-4 flex justify-end pt-4">
+          <button type="submit" className="btn btn-primary w-full md:w-auto flex items-center justify-center space-x-2 px-8 py-3">
             <Plus className="h-4 w-4" />
             <span>Register Student</span>
           </button>

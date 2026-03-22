@@ -10,6 +10,11 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  rollNo: {
+    type: String,
+    unique: true,
+    sparse: true, // Only for students who have it
+  },
   password: {
     type: String,
     required: true,

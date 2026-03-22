@@ -74,7 +74,7 @@ const GradeForm = ({ students, onAddGrade }) => {
           <div className="relative group">
             <User className="absolute left-3 top-3 h-5 w-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
             <select
-              className="input pl-10 h-12 appearance-none border-gray-200 focus:border-indigo-500 rounded-xl"
+              className="input-field pl-10 h-12 appearance-none"
               value={formData.studentId}
               onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
             >
@@ -91,7 +91,7 @@ const GradeForm = ({ students, onAddGrade }) => {
           <div className="relative group">
             <BookOpen className="absolute left-3 top-3 h-5 w-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
             <select
-              className="input pl-10 h-12 appearance-none border-gray-200 focus:border-indigo-500 rounded-xl"
+              className="input-field pl-10 h-12 appearance-none"
               value={formData.subject}
               onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
             >
@@ -112,7 +112,7 @@ const GradeForm = ({ students, onAddGrade }) => {
               min="0"
               max="100"
               placeholder="Enter marks"
-              className="input pl-10 h-12 border-gray-200 focus:border-indigo-500 rounded-xl"
+              className="input-field pl-10 h-12"
               value={formData.marks}
               onChange={(e) => setFormData({ ...formData, marks: e.target.value })}
             />
@@ -120,7 +120,7 @@ const GradeForm = ({ students, onAddGrade }) => {
         </div>
 
         <div className="md:col-span-3 border-t border-gray-50 pt-6 flex justify-end">
-          <button type="submit" className="btn btn-primary flex items-center space-x-2 px-10 py-4 rounded-xl shadow-indigo-200 shadow-lg hover:shadow-indigo-300 transform hover:-translate-y-0.5 transition-all">
+          <button type="submit" className="btn btn-primary w-full md:w-auto flex items-center justify-center space-x-2 px-10 py-4 rounded-xl shadow-indigo-200 shadow-lg hover:shadow-indigo-300 transform hover:-translate-y-0.5 transition-all">
             <Plus className="h-5 w-5" />
             <span className="font-bold text-lg">Assign Grade</span>
           </button>
